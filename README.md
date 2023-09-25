@@ -188,7 +188,8 @@ MAU = 500
 
 ### Физическое расположение дата-центров
 
-Согласно hypestat.com распределение пользователей для Google Calendar:
+Согласно hypestat.com [[2]](https://hypestat.com/info/calendar.google.com#:~:text=Visitors%20by%20country,2.8%25)
+распределение пользователей для Google Calendar:
 
 1. USA 18.8%
 2. India 10.7%
@@ -197,7 +198,8 @@ MAU = 500
 5. Brazil 2.8%
 6. Other 59.6%
 
-Согласно similar.web:
+Согласно
+similar.web [[7]](https://pro.similarweb.com/#/digitalsuite/websiteanalysis/audience-geography/*/999/3m?key=calendar.google.com&webSource=Total):
 
 1. USA 41.39%
 2. Japan 8.92%
@@ -224,9 +226,9 @@ MAU = 500
 
 В США дата-центры будут располагаться в следующих городах:
 
-- Нью-Йорк (северо-восточная часть) 
+- Нью-Йорк (северо-восточная часть)
 - Сан-Франциско (западная часть)
-- Чикаго 
+- Чикаго
 - Лос-Анджелес
 - Хьюстон
 
@@ -240,7 +242,8 @@ MAU = 500
 - Москва (Россия)
 - Сан-Паулу (Бразилия)
 
-Также учитывая карту распределения пользователей Gmail по странам,
+Также учитывая карту распределения пользователей Gmail по
+странам [[8]](https://worldpopulationreview.com/country-rankings/gmail-users-by-country),
 
 ![gmail.png](img/gmail.png)
 
@@ -271,3 +274,5 @@ MAU = 500
 4. https://www.ory.sh/docs/troubleshooting/bcrypt-secret-length
 5. https://www.geekslop.com/technology-articles/2016/here-are-the-recommended-maximum-data-length-limits-for-common-database-and-programming-fields
 6. https://developers.googleblog.com/2022/01/year-in-review-google-workspace.html
+7. https://pro.similarweb.com/#/digitalsuite/websiteanalysis/audience-geography/*/999/3m?key=calendar.google.com&webSource=Total
+8. https://worldpopulationreview.com/country-rankings/gmail-users-by-country
