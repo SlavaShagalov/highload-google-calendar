@@ -43,18 +43,17 @@ MAU = 500
       байт [[4]](https://www.ory.sh/docs/troubleshooting/bcrypt-secret-length#:~:text=BCrypt%20hashed%20passwords%20and%20secrets%20have%20a%2072%20character%20limit.%20This%20is%20a%20limitation%20of%20the%20BCrypt%20algorithm%20and%20the%20Golang%20BCrypt%20library.)
     - first name + last name - 100
       байт [[5]](https://www.geekslop.com/technology-articles/2016/here-are-the-recommended-maximum-data-length-limits-for-common-database-and-programming-fields#:~:text=35%20chars%20(US)%2C-,50%20(other),-Last%20name)
-    - Часовой пояс - 4 байт, ссылка на часовой пояс в таблице часовых поясов
+    - Часовой пояс - 8 байт, ссылка на часовой пояс в таблице часовых поясов
     - **Общий размер:** 254 + 64 + 100 + 4 = 422 байт
 
 - **Календари:**
     - Примем среднее кол-во личных календарей пользователя равным 2.
     - Название - 100 байт.
     - Описание - 1000 байт.
-    - Часовой пояс - 4 байт, ссылка на часовой пояс.
-    - Владелец - 4 байт, ссылка на пользователя.
+    - Владелец - 8 байт, ссылка на пользователя.
     - Время создания - 8 байт.
     - Время обновления - 8 байт.
-    - Размер одного календаря: 100 + 1000 + 4 + 4 + 8 + 8 = 1124 байт.
+    - Размер одного календаря: 100 + 1000 + 8 + 8 + 8 = 1124 байт. // TODO: fix
     - **Общий размер:** 2 * 1124 байт = 2248 байт = 2.2 Kбайт.
 
 - **Подписки на календари:**
@@ -254,7 +253,7 @@ similar.web [[7]](https://pro.similarweb.com/#/digitalsuite/websiteanalysis/audi
 
 Тогда карта физического расположения дата-центров примет вид:
 
-![my_distribution.jpg](img/my_distribution.png)
+![my_distribution.png](img/my_distribution.png)
 
 ### Схема глобальной балансировки до дата-центров
 
@@ -282,7 +281,54 @@ robin стратегию.
 Так как используется nginx, то терминация SSL происходит за счет проксирования, т.е. nginx формирует новый запрос на
 основе старого, но с использованием HTTP.
 
-## 5. Источники
+## 5. Логическая схема БД
+
+![log_tables.png](img/log_tables.png)
+
+**users**
+```
+Одна запись: 8 (id) + 254 (email) + 50 (first_name) + 50 (last_name) + 64 (password) + 8 (timezone_id) = 434 байта
+Все записи: 434 * 1 млрд (кол-во пользователей) = 405 Гб
+```
+
+**calendars**
+```
+Одна запись: 8 (id) + 8 (owner_id) + 100 (name) + 1000 (description) + 8 (created_at) + 8 (updated_at) = 1132 байта
+Все записи: 1132 * 2 шт. * 1 млрд (кол-во пользователей) = 2.1 Тб
+```
+
+**calendar_users**
+```
+Одна запись: 8 (calendar_id) + 8 (user_id) + 4 (access) = 20 байт
+Все записи: 20 * 3 шт. * 1 млрд (кол-во пользователей) = 56 Гбайт
+```
+
+**events**
+```
+Одна запись: 8 (id) + 8 (owner_id) + 8 (calendar_id) + 100 (name) + 3000 (description) + 8 (start_time) + 
+8 (end_time) + 4 (all_day) + 8 (created_at) + 8 (updated_at) = 3160 байт
+Все записи: 3160 * 5475 (шт. за 5 лет) * 500 млн (MAU) = 7.7 Пб
+```
+
+**event_users**
+```
+Одна запись: 8 (event_id) + 8 (user_id) = 16 байт
+Все записи: 16 * 2000 (шт. за 5 лет) * 500 млн (MAU) = 15 Тбайт
+```
+
+**timezones**
+```
+Одна запись: 8 (id) + 100 (name) = 108 байт
+Все записи: 108 * 38 (поясов) = 4 Кбайт
+```
+
+**notifications**
+```
+Одна запись: 8 (id) + 4 (type) + 8 (receiver_id) + 8 (event_id) + 8 (remind_at) = 36 байт
+Все записи: 36 * 240 (хранятся в ожидании для 1-го пользователя) * 500 млн (MAU) = 4 Тбайт
+```
+
+## 6. Источники
 
 1. https://www.patronum.io/key-google-workspace-statistics-for-2023/
 2. https://hypestat.com/info/calendar.google.com
