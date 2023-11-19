@@ -339,6 +339,9 @@ robin стратегию.
 
 ![phys_scheme](img/phys_scheme.png)
 
+Для хранения уведомлений можно использовать СУБД Redis. Redis хранит все данные в оперативной памяти и способен отдавать
+данные быстрее реляционных СУБД.
+
 ### Индексы
 
 | Таблица   |          Поле          | Тип индекса | Применение                                                                                  |
@@ -346,16 +349,24 @@ robin стратегию.
 | users     |         email          |    Hash     | Для выборки пользователей по email для проверки на уже использующийся email при регистрации |
 | calendars |        owner_id        |    Hash     | Для выборки календарей пользователя                                                         |
 | events    |      calendar_id       |    Hash     | Для выборки событий календаря                                                               |
+| events    |        owner_id        |    Hash     | Для выборки событий пользователя                                                            |
 | events    | (start_time, end_time) |   B-tree    | Для выборки событий из определенного периода времени                                        |
 
 ### Шардинг
+
+| Таблица       | Поле (ключ для шардинга) | 
+|---------------|:------------------------:|
+| users         |            id            |
+| calendars     |         owner_id         |
+| events        |       calendar_id        |
+| notifications |       receiver_id        |
 
 ### Клиентские библиотеки
 
 На бэкенде будет использоваться Golang.
 
-- Postgres:
-- Redis:
+- Postgres: [pgx](https://github.com/jackc/pgx)
+- Redis: [go-redis](https://github.com/redis/go-redis)
 
 ## 7. Источники
 
