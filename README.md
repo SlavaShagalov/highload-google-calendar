@@ -374,7 +374,6 @@ Redis можно хранить сессии пользователей.
 | calendars     |         owner_id         |
 | events        |       calendar_id        |
 | notifications |       receiver_id        |
-| sessions      |            id            |
 
 ### Клиентские библиотеки
 
