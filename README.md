@@ -431,6 +431,35 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 
 ## 11. Расчет ресурсов
 
+Согласно [бенчмарку](https://www.techempower.com/benchmarks/#section=data-r22&test=json&hw=ph&l=zii9rz-cn3),
+производительности лучших фреймворков для C++ и Go примерно равны, поэтому можно взять данные удельного потребления
+ресурсов для Go из данных для C++ из [методички](https://github.com/init/highload/blob/main/highload_l11_hosting.md).
+
+| Технология | Характер сервиса      | RPS    | RAM    |
+|------------|-----------------------|--------|--------|
+| Go         | тяжелая бизнес-логика | 10     | 100 Mb |
+| Go         | средняя бизнес-логика | 100    | 100 Mb |
+| Go         | легкое JSON API       | 5000   | 10 Mb  |
+| Nginx      | SSL handshake (CPS)   | 500    | 10 Mb  |
+
+| Сервис             | Характер сервиса      | Целевая пиковая нагрузка, RPS | CPU | RAM    | Net         |
+|--------------------|-----------------------|-------------------------------|-----|--------|-------------|
+| Auth               | средняя бизнес-логика | 9000                          | 90  | 9 Gb   | 28.8 Mbit/s |
+| Users              | легкое JSON API       | 500                           | 1   | 10 Mb  | 1.7 Mbit/s  |
+| Calendars          | легкое JSON API       | 2400                          | 1   | 10 Mb  | 43 Mbit/s   |
+| Events             | легкое JSON API       | 5600                          | 2   | 20 Mb  | 12.8 Gbit/s |
+| Reminders          | средняя бизнес-логика | 2000                          | 20  | 2 Gb   | 16 Mbit/s   |
+| Notifications      | средняя бизнес-логика | 2800                          | 28  | 3 Gb   | 22.4 Mbit/s |
+| NotificationSender | легкий сервис         | 4800                          | 1   | 10 Mb  | 38.4 Gbit/s |
+| Nginx              | SSL handshake (CPS)   | 28700                         | 58  | 580 Mb | 12.8 Gbit/s |
+| API Gateway        | средняя бизнес-логика | 28700                         | 287 | 28 Gb  | 12.8 Gbit/s |
+
+| Сервис             | Хостинг | Конфигурация                      | Cores | Cnt |
+|--------------------|---------|-----------------------------------|-------|-----|
+| Nginx              | own     | 1x6434/1x4GB/1xNVMe256Gb/2x1Gb/s  | 8     | 12  |
+| API Gateway        | own     | 2x6430/1x8GB/1xNVMe256Gb/1x10Gb/s | 64    | 6   |
+| Auth               | own     | 2x6434/1x4GB/1xNVMe256Gb/1Gb/s    | 16    | 6   |
+
 ## 12. Источники
 
 1. https://www.patronum.io/key-google-workspace-statistics-for-2023/
