@@ -419,15 +419,11 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 ### Graceful Degradation
 
 В случае невозможности получить данные в полном объеме сервис пытается отдать минимально возможную часть, выполняя менее
-ресурсоёмкие операции.
+ресурсоёмкие операции (Отдача не только собственных событий, если чужие (общедоступные) получить не удалось).
 
 ### CQRS
 
-Синхронное чтение, асинхронная запись.
-
-### event-driven архитектура
-
-События публикуются в брокере сообщений. Consumer-ы на другой стороне асинхронно обрабатывают события.
+Синхронное чтение, асинхронная запись (уведомления).
 
 ## 11. Расчет ресурсов
 
@@ -450,15 +446,21 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 | Events             | легкое JSON API       | 5600                          | 2   | 20 Mb  | 12.8 Gbit/s |
 | Reminders          | средняя бизнес-логика | 2000                          | 20  | 2 Gb   | 16 Mbit/s   |
 | Notifications      | средняя бизнес-логика | 2800                          | 28  | 3 Gb   | 22.4 Mbit/s |
-| NotificationSender | легкий сервис         | 4800                          | 1   | 10 Mb  | 38.4 Gbit/s |
+| NotificationSender | легкий сервис         | 4800                          | 1   | 10 Mb  | 38.4 Mbit/s |
 | Nginx              | SSL handshake (CPS)   | 28700                         | 58  | 580 Mb | 12.8 Gbit/s |
 | API Gateway        | средняя бизнес-логика | 28700                         | 287 | 28 Gb  | 12.8 Gbit/s |
 
-| Сервис             | Хостинг | Конфигурация                      | Cores | Cnt |
-|--------------------|---------|-----------------------------------|-------|-----|
-| Nginx              | own     | 1x6434/1x4GB/1xNVMe256Gb/2x1Gb/s  | 8     | 12  |
-| API Gateway        | own     | 2x6430/1x8GB/1xNVMe256Gb/1x10Gb/s | 64    | 6   |
-| Auth               | own     | 2x6434/1x4GB/1xNVMe256Gb/1Gb/s    | 16    | 6   |
+| Сервис              | Хостинг | Конфигурация                      | Cores | Cnt  |
+|---------------------|---------|-----------------------------------|-------|------|
+| Nginx               | own     | 1x6434/1x4GB/1xNVMe256Gb/2x1Gb/s  | 8     | 12   |
+| API Gateway         | own     | 2x6430/1x8GB/1xNVMe256Gb/1x10Gb/s | 64    | 6    |
+| Auth                | own     | 2x6434/1x4GB/1xNVMe256Gb/1Gb/s    | 16    | 6    |
+| Users               | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
+| Calendars           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
+| Events              | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s   | 4     | 6    |
+| Reminders           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
+| Notifications       | own     | 1x6434/1x8GB/1xNVMe256Gb/1Gb/s    | 8     | 6    |
+| NotificationsSender | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
 
 ## 12. Источники
 
