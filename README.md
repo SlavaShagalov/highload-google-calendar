@@ -487,29 +487,39 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 | Go         | легкое JSON API       | 5000   | 10 Mb  |
 | Nginx      | SSL handshake (CPS)   | 500    | 10 Mb  |
 
+- Users: 20 млн. (DAU) * 5 просмотров / 86400 сек = 1200 RPS, пик = 2400 RPS.
+- Calendars: 20 млн. (DAU) * 5 просмотров / 86400 сек = 1200 RPS, пик = 2400 RPS.
+- Events: 20 млн. (DAU) * (5 просмотров + 3 ред-ния) / 86400 сек = 1900 RPS, пик = 3800 RPS.
+- Auth: 1200 + 1200 + 1900 = 4300 RPS, пик = 8600 RPS.
+- Nginx: 4500 RPS, пик = 9000 RPS.
+- API Gateway: 4300 RPS, пик = 8600 RPS.
+- Reminders: 20 млн. (DAU) * 3 напоминаний / 86400 сек = 700 RPS, пик = 1400 RPS.
+- Notifications: 20 млн. (DAU) * 6 (уведомлений|напоминаний) / 86400 сек = 1400 RPS, пик = 2800 RPS.
+- NotificationSender: 700 + 1400 = 2100 RPS, пик = 4200 RPS.
+
 | Сервис             | Характер сервиса      | Целевая пиковая нагрузка, RPS | CPU | RAM    | Net         |
 |--------------------|-----------------------|-------------------------------|-----|--------|-------------|
-| Auth               | средняя бизнес-логика | 9000                          | 90  | 9 Gb   | 28.8 Mbit/s |
-| Users              | легкое JSON API       | 500                           | 1   | 10 Mb  | 1.7 Mbit/s  |
-| Calendars          | легкое JSON API       | 2400                          | 1   | 10 Mb  | 43 Mbit/s   |
-| Events             | легкое JSON API       | 5600                          | 2   | 20 Mb  | 12.8 Gbit/s |
-| Reminders          | средняя бизнес-логика | 2000                          | 20  | 2 Gb   | 16 Mbit/s   |
-| Notifications      | средняя бизнес-логика | 2800                          | 28  | 3 Gb   | 22.4 Mbit/s |
-| NotificationSender | легкий сервис         | 4800                          | 1   | 10 Mb  | 38.4 Mbit/s |
-| Nginx              | SSL handshake (CPS)   | 28700                         | 58  | 580 Mb | 12.8 Gbit/s |
-| API Gateway        | средняя бизнес-логика | 28700                         | 287 | 28 Gb  | 12.8 Gbit/s |
+| Users              | легкое JSON API       | 2400                          | 1   | 10 Mb  | 9 Mbit/s    |
+| Calendars          | легкое JSON API       | 2400                          | 1   | 10 Mb  | 110 Mbit/s  |
+| Events             | легкое JSON API       | 3800                          | 1   | 10 Mb  | 9 Gbit/s    |
+| Auth               | средняя бизнес-логика | 8600                          | 86  | 9 Gb   | 28.8 Mbit/s |
+| Nginx              | SSL handshake (CPS)   | 9000                          | 18  | 180 Mb | 10 Gbit/s   |
+| API Gateway        | средняя бизнес-логика | 8600                          | 86  | 9 Gb   | 10 Gbit/s   |
+| Reminders          | средняя бизнес-логика | 1400                          | 14  | 2 Gb   | 12 Mbit/s   |
+| Notifications      | средняя бизнес-логика | 2800                          | 28  | 3 Gb   | 23 Mbit/s   |
+| NotificationSender | легкий сервис         | 4200                          | 1   | 10 Mb  | 35 Mbit/s   |
 
-| Сервис              | Хостинг | Конфигурация                      | Cores | Cnt  |
-|---------------------|---------|-----------------------------------|-------|------|
-| Nginx               | own     | 1x6434/1x4GB/1xNVMe256Gb/2x1Gb/s  | 8     | 12   |
-| API Gateway         | own     | 2x6430/1x8GB/1xNVMe256Gb/1x10Gb/s | 64    | 6    |
-| Auth                | own     | 2x6434/1x4GB/1xNVMe256Gb/1Gb/s    | 16    | 6    |
-| Users               | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
-| Calendars           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
-| Events              | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s   | 4     | 6    |
-| Reminders           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
-| Notifications       | own     | 1x6434/1x8GB/1xNVMe256Gb/1Gb/s    | 8     | 6    |
-| NotificationsSender | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s    | 4     | 6    |
+| Сервис              | Хостинг | Конфигурация                    | Cores | Cnt |
+|---------------------|---------|---------------------------------|-------|-----|
+| Users               | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Calendars           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Events              | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
+| Auth                | own     | 1x6434/1x4GB/1xNVMe256Gb/1Gb/s  | 8     | 12  |
+| Nginx               | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
+| API Gateway         | own     | 1x6434/1x4GB/1xNVMe256Gb/10Gb/s | 8     | 12  |
+| Reminders           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Notifications       | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| NotificationsSender | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 
 ## 12. Источники
 
