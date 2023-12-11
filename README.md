@@ -454,6 +454,14 @@ Redis можно хранить сессии пользователей.
 Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.today/api-gateway-endpoints/).
 Облачные провайдеры предоставляют API Gateway с автоматическим масштабированием.
 
+- Auth Service - аутентификация/авторизация/регистрация.
+- Users Service - CRUD операции над данными пользователя + создание уведомлений + создание/удаление напоминаний.
+- Calendars Service - CRUD операции над календарями + создание уведомлений + создание/удаление напоминаний.
+- Events Service - CRUD операции над событиями + создание уведомлений + создание/удаление напоминаний.
+- Reminders Service - циклически забирает напоминания актуальные по времени отправки из Redis и отправляет в сервис
+  отправки.
+- NotificationSender Service - из данных уведомления формирует email письмо или push-уведомление и отправляет.
+
 ## 10. Обеспечение надежности
 
 ### Резервирование
@@ -489,37 +497,35 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 
 - Users: 20 млн. (DAU) * 5 просмотров / 86400 сек = 1200 RPS, пик = 2400 RPS.
 - Calendars: 20 млн. (DAU) * 5 просмотров / 86400 сек = 1200 RPS, пик = 2400 RPS.
-- Events: 20 млн. (DAU) * (5 просмотров + 3 ред-ния) / 86400 сек = 1900 RPS, пик = 3800 RPS.
-- Auth: 1200 + 1200 + 1900 = 4300 RPS, пик = 8600 RPS.
-- Nginx: 4500 RPS, пик = 9000 RPS.
-- API Gateway: 4300 RPS, пик = 8600 RPS.
-- Reminders: 20 млн. (DAU) * 3 напоминаний / 86400 сек = 700 RPS, пик = 1400 RPS.
-- Notifications: 20 млн. (DAU) * 6 (уведомлений|напоминаний) / 86400 сек = 1400 RPS, пик = 2800 RPS.
-- NotificationSender: 700 + 1400 = 2100 RPS, пик = 4200 RPS.
+- Events: 20 млн. (DAU) * (5 просмотров + 3 ред-ния + 6 (уведомления|напоминания)) / 86400 сек = 3300 RPS, пик = 6600
+  RPS.
+- Auth: 1200 + 1200 + 3300 = 5700 RPS, пик = 11400 RPS.
+- Nginx: 6000 RPS, пик = 12000 RPS.
+- API Gateway: 5700 RPS, пик = 11400 RPS.
+- Reminders: 20 млн. (DAU) * 4 напоминаний / 86400 сек = 1000 RPS, пик = 2000 RPS.
+- NotificationSender: 20 млн. (DAU) * 6 уведомления / 86400 сек = 1400 RPS, пик = 2800 RPS.
 
-| Сервис             | Характер сервиса      | Целевая пиковая нагрузка, RPS | CPU | RAM    | Net         |
-|--------------------|-----------------------|-------------------------------|-----|--------|-------------|
-| Users              | легкое JSON API       | 2400                          | 1   | 10 Mb  | 9 Mbit/s    |
-| Calendars          | легкое JSON API       | 2400                          | 1   | 10 Mb  | 110 Mbit/s  |
-| Events             | легкое JSON API       | 3800                          | 1   | 10 Mb  | 9 Gbit/s    |
-| Auth               | средняя бизнес-логика | 8600                          | 86  | 9 Gb   | 28.8 Mbit/s |
-| Nginx              | SSL handshake (CPS)   | 9000                          | 18  | 180 Mb | 10 Gbit/s   |
-| API Gateway        | средняя бизнес-логика | 8600                          | 86  | 9 Gb   | 10 Gbit/s   |
-| Reminders          | средняя бизнес-логика | 1400                          | 14  | 2 Gb   | 12 Mbit/s   |
-| Notifications      | средняя бизнес-логика | 2800                          | 28  | 3 Gb   | 23 Mbit/s   |
-| NotificationSender | легкий сервис         | 4200                          | 1   | 10 Mb  | 35 Mbit/s   |
+| Сервис             | Характер сервиса      | Целевая пиковая нагрузка, RPS | CPU | RAM     | Net        |
+|--------------------|-----------------------|-------------------------------|-----|---------|------------|
+| Users              | средняя бизнес-логика | 2400                          | 24  | 2.4 Gb  | 9 Mbit/s   |
+| Calendars          | средняя бизнес-логика | 2400                          | 24  | 2.4 Gb  | 110 Mbit/s |
+| Events             | средняя бизнес-логика | 6600                          | 66  | 6.5 Gb  | 9 Gbit/s   |
+| Auth               | средняя бизнес-логика | 11400                         | 114 | 11.2 Gb | 40 Mbit/s  |
+| Nginx              | SSL handshake (CPS)   | 12000                         | 24  | 2.4 Gb  | 10 Gbit/s  |
+| API Gateway        | средняя бизнес-логика | 11400                         | 114 | 11.2 Gb | 10 Gbit/s  |
+| Reminders          | средняя бизнес-логика | 2000                          | 20  | 2 Gb    | 16 Mbit/s  |
+| NotificationSender | легкий сервис         | 2800                          | 1   | 2 Gb    | 23 Mbit/s  |
 
-| Сервис              | Хостинг | Конфигурация                    | Cores | Cnt |
-|---------------------|---------|---------------------------------|-------|-----|
-| Users               | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
-| Calendars           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
-| Events              | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
-| Auth                | own     | 1x6434/1x4GB/1xNVMe256Gb/1Gb/s  | 8     | 12  |
-| Nginx               | own     | 1x2374/1x4GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
-| API Gateway         | own     | 1x6434/1x4GB/1xNVMe256Gb/10Gb/s | 8     | 12  |
-| Reminders           | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
-| Notifications       | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
-| NotificationsSender | own     | 1x2374/1x4GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Сервис              | Хостинг | Конфигурация                     | Cores | Cnt |
+|---------------------|---------|----------------------------------|-------|-----|
+| Users               | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Calendars           | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| Events              | own     | 1x6434/1x16GB/1xNVMe256Gb/10Gb/s | 8     | 12  |
+| Auth                | own     | 2x6434/1x16GB/1xNVMe256Gb/1Gb/s  | 16    | 12  |
+| Nginx               | own     | 1x2374/1x16GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
+| API Gateway         | own     | 2x6434/1x16GB/1xNVMe256Gb/10Gb/s | 16    | 12  |
+| Reminders           | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
+| NotificationsSender | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 
 ## 12. Источники
 
