@@ -521,9 +521,9 @@ Gateway** [[9]](https://habr.com/ru/articles/557004/) [[10]](https://highload.to
 | Users               | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 | Calendars           | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 | Events              | own     | 1x6434/1x16GB/1xNVMe256Gb/10Gb/s | 8     | 12  |
-| Auth                | own     | 2x6434/1x16GB/1xNVMe256Gb/1Gb/s  | 16    | 12  |
+| Auth                | own     | 2x6434/1x32GB/1xNVMe256Gb/1Gb/s  | 16    | 12  |
 | Nginx               | own     | 1x2374/1x16GB/1xNVMe256Gb/10Gb/s | 4     | 12  |
-| API Gateway         | own     | 2x6434/1x16GB/1xNVMe256Gb/10Gb/s | 16    | 12  |
+| API Gateway         | own     | 2x6434/1x32GB/1xNVMe256Gb/10Gb/s | 16    | 12  |
 | Reminders           | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 | NotificationsSender | own     | 1x2374/1x16GB/1xNVMe256Gb/1Gb/s  | 4     | 12  |
 
